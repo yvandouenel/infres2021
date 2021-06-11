@@ -9,27 +9,11 @@ class App extends DomHandle {
     this.fd = new FetchData();
     this.token = "";
     this.user = null;
-    this.fd.getToken()
-      .then((value) => {
-        console.log("token dans le constructeur : ", value);
-        this.token = value;
-        return this.fd.getUser(this.token, "infres", "12345678");
-      })
-      .then((value) => {
-        console.log("User le constructeur : ", value);
-        this.user = {
-            uid: value.current_user.uid,
-            login: value.name,
-            pwd: "12345678"
-        } 
-        return this.fd.getTerms(this.user, this.token);
-      })
-      .then(data => {
-          console.log(`Termes dans le constructeur d'APP : `, data);
-      })
-      .catch((error) => {
-        console.error("Erreur: ", error.message);
-      });
+    this.terms = null;
+    this.dom_elts = {};
+
+    // Récupération du token, de l'utilisateur et des termes via Fetch
+    this.getTokenUserTerms();
 
     this.updating_card = null;
     // creation du formulaire d'ajout
@@ -47,6 +31,31 @@ class App extends DomHandle {
 
       const card1 = new Card(question, answer, this);
     };
+  }
+  getTokenUserTerms() {
+    this.fd.getToken()
+    .then((value) => {
+      console.log("token dans le constructeur : ", value);
+      this.token = value;
+      return this.fd.getUser(this.token, "infres", "12345678");
+    })
+    .then((value) => {
+      console.log("User le constructeur : ", value);
+      this.user = {
+          uid: value.current_user.uid,
+          login: value.name,
+          pwd: "12345678"
+      } 
+      return this.fd.getTerms(this.user, this.token);
+    })
+    .then(data => {
+        console.log(`Termes dans le constructeur d'APP : `, data);
+        this.terms = data;
+        this.drawTerms();
+    })
+    .catch((error) => {
+      console.error("Erreur: ", error.message);
+    });
   }
   handleUpCard() {
     this.form_up_card.onsubmit = (event, card_elt) => {
@@ -67,6 +76,33 @@ class App extends DomHandle {
       this.updating_card = null;
       this.form_up_card.remove();
     };
+  }
+  addClickTerm() {
+      this.dom_elts.dom_terms.forEach(elt => {
+          elt.onclick = () => {
+              // Récupération de l'id
+              console.log(`Click sur term id: `, elt.id);
+              this.fd.getCards(this.user, this.token, elt.id)
+              .then(data => {
+                console.log(`Cartes dans App : `, data);
+              })
+              .catch(error => {
+                  console.error("Erreur dans addClickTerm : ", error)
+              })
+          }
+    });
+  }
+  drawTerms() {
+    const main_header = document.getElementById("main-header");
+    const main_nav = this.createDomElement("nav", "", main_header);
+    const dom_terms = [];
+    // Création de tous les boutons
+    this.terms.forEach(elt => {
+        dom_terms.push(this.createDomElement("button", elt.name, main_nav,{"id":elt.id}));
+    });
+    
+    this.dom_elts.dom_terms = dom_terms;
+    this.addClickTerm();
   }
   drawForm() {
     const main_elt = document.getElementById("main");
