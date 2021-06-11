@@ -58,9 +58,10 @@ class Card extends DomHandle {
 
         // Gestion des événements
         this.dom_elts.delete_button.onclick = function() {
+            console.log(`Dans handle delete Card, this : `, this);
             console.log(`Click pour supprimer la carte`);
             this.deleteCard();
-        }
+        }.bind(this);
     }
     drawCard() {
         const main_elt = document.getElementById("main");
