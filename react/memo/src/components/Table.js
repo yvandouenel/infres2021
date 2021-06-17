@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import Term from "./Term.js";
+import Column from "./Column.js";
 import FetchData from "../services/FetchData.js";
 
 /* Faites en sorte que le click sur un terme permette d'afficher les 4 
@@ -12,7 +13,8 @@ class Table extends Component {
     this.state = {
       terms: [],
       token: "",
-      user: null
+      user: null,
+      columns: [],
     };
   }
   componentDidMount() {
@@ -37,13 +39,18 @@ class Table extends Component {
     // Maintenant que l'on a tout ce qu'il faut pour aller chercher
     // les cartes, on va appeler la méthod getCards
     console.log(`this : `, this);
-    this.fd.getCards(this.state.user, this.state.token, tid)
-    .then((data) => {
-      console.log(`Data dans handleClickTerm : `, data);
-    })
-    .catch(error => {
-      console.error("Pb dans handleClickTerm : ", error.message)
-    })
+    this.fd
+      .getCards(this.state.user, this.state.token, tid)
+      .then((data) => {
+        console.log(`Data dans handleClickTerm : `, data);
+        // Affichage des colonnes
+        const state = { ...this.state };
+        state.columns = data;
+        this.setState(state);
+      })
+      .catch((error) => {
+        console.error("Pb dans handleClickTerm : ", error.message);
+      });
   };
 
   handleSubmitFormLogin(event) {
@@ -54,35 +61,49 @@ class Table extends Component {
     const pwd = form.querySelector("#pwd").value;
 
     // Récupération de l'utilisateur
-    this.fd.getUser(this.state.token, login, pwd)
-    .then((data) => {
-      console.log(`Donnée dans handleSubmitFormLogin : `, data);
-      const user = {
-        uid: data.current_user.uid,
-        login: login,
-        pwd: pwd
-      }
-      const state = {...this.state};
-      state.user = user;
-      this.setState(state);
-      return this.fd.getTerms(user, this.state.token);
-    })
-    .then((data) => {
-      // Ici on a récupéré les termes
-      console.log(`Donnée dans handleSubmitFormLogin : `, data);
-      const state = {...this.state};
-      state.terms = data;
-      this.setState(state);
-    })
-    .catch((error) => {
-      console.error("Problème dans handleSubmitFormLogin ", error.message);
-    })
+    this.fd
+      .getUser(this.state.token, login, pwd)
+      .then((data) => {
+        console.log(`Donnée dans handleSubmitFormLogin : `, data);
+        const user = {
+          uid: data.current_user.uid,
+          login: login,
+          pwd: pwd,
+        };
+        const state = { ...this.state };
+        state.user = user;
+        this.setState(state);
+        return this.fd.getTerms(user, this.state.token);
+      })
+      .then((data) => {
+        // Ici on a récupéré les termes
+        console.log(`Donnée dans handleSubmitFormLogin : `, data);
+        const state = { ...this.state };
+        state.terms = data;
+        this.setState(state);
+      })
+      .catch((error) => {
+        console.error("Problème dans handleSubmitFormLogin ", error.message);
+      });
 
     const state = { ...this.state }; //Copie par valeur du state
     state.display_form = false;
     // Si le state local est différent du stage du composant et que cela a un
     // impact sur le rendu, alors la méthode render est rappelée
     this.setState(state);
+  }
+  renderColumns() {
+    if(this.state.columns.length) {
+      return(
+        <section className="row">
+        {this.state.columns.map(col => <Column 
+          key={col.id}
+          col={col}
+          />)}
+        </section>
+      )
+    }
+    
   }
   render() {
     return (
@@ -93,18 +114,18 @@ class Table extends Component {
           {this.state.user && (
             <nav className="d-flex justify-content-center">
               {this.state.terms.map((term) => (
-                <Term 
-                key={term.id} 
-                name={term.name}
-                id={term.id} 
-                onClickTerm={this.handleClickTerm}
-
+                <Term
+                  key={term.id}
+                  name={term.name}
+                  id={term.id}
+                  onClickTerm={this.handleClickTerm}
                 />
               ))}
             </nav>
           )}
         </header>
         <main className="container">
+          {this.renderColumns()}
           {!this.state.user && (
             <form
               action=""
