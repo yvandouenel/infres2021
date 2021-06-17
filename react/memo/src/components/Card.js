@@ -1,7 +1,12 @@
-// Stateless component : c'est à dire que le composant n'a pas de state et qu'il n'a
-// donc pas besoin d'hériter de la classe "Component"
-// En revanche, il récupère des arguments passés par son composant parent (Table) via
-// le paramètre props
+/* 
+Transformer de component stateless en component avec state
+Dans le state, vous ajoutez une propriété du type show_answer qui sera 
+à false par défaut
+Dans la méthode render de ce composant, vous n'afficherez la réponse que si
+show_answer est à true
+Il faudra donc gérer l'événement click sur la question pour obtenir 
+un comportement similaire à celui de memopus.com
+*/
 export default function Card(props) {
   return (
     <article className="bg-secondary text-light p-3 rounded mb-4">
