@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import Term from "./Term.js";
 import FetchData from "../services/FetchData.js";
 
-/* Faites en sorte que le click sur un terme (js, css...)
-fasse appel à la méthodes getCards avec les bons arguments */
+/* Faites en sorte que le click sur un terme permette d'afficher les 4 
+colonnes en utilisant un composant "Column" qui affichera à minima
+une section avec un titre (A apprendre, je sais un peu ...) */
 class Table extends Component {
   constructor(props) {
     super(props);
@@ -28,6 +29,23 @@ class Table extends Component {
         console.error("Erreur attrapée dans getToken : ", error.message);
       });
   }
+  /* L'utilisation de la fonction fléchée permet de s'assurer que 
+  this correspond bien à l'instance d'APP. En effet, le this est alors
+  fonction de l'endroit (ici la classe Table) où la méthode est déclarée  */
+  handleClickTerm = (event, tid) => {
+    console.log(`dans handleClickTerm`, tid);
+    // Maintenant que l'on a tout ce qu'il faut pour aller chercher
+    // les cartes, on va appeler la méthod getCards
+    console.log(`this : `, this);
+    this.fd.getCards(this.state.user, this.state.token, tid)
+    .then((data) => {
+      console.log(`Data dans handleClickTerm : `, data);
+    })
+    .catch(error => {
+      console.error("Pb dans handleClickTerm : ", error.message)
+    })
+  };
+
   handleSubmitFormLogin(event) {
     event.preventDefault();
     const form = event.target;
@@ -75,7 +93,13 @@ class Table extends Component {
           {this.state.user && (
             <nav className="d-flex justify-content-center">
               {this.state.terms.map((term) => (
-                <Term key={term.id} name={term.name} />
+                <Term 
+                key={term.id} 
+                name={term.name}
+                id={term.id} 
+                onClickTerm={this.handleClickTerm}
+
+                />
               ))}
             </nav>
           )}

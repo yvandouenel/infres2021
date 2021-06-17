@@ -3,5 +3,11 @@
 // En revanche, il récupère des arguments passés par son composant parent (Table) via
 // le paramètre props
 export default function Term(props) {
-    return <button className="m-3 btn btn-warning">{`${props.name}`}</button>;
+    return <button 
+    onClick={(e) => {
+        props.onClickTerm(e, props.id);
+    }}
+     className="m-3 btn btn-warning">
+         {`${props.name}`}
+         </button>;
   }
