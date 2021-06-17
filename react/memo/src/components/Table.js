@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import Term from "./Term.js";
+
+/* Faites en sorte que Table n'affiche pas par défaut les Termes mais plutôt un formulaire d'authentification. Une fois le formulaire renseigné, les termes pourront apparaître */
 class Table extends Component {
   state = {
     terms: [
