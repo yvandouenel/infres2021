@@ -18,8 +18,14 @@ export default function Column(props) {
         </button>
         <h3>{`${props.col.name}`}</h3>
       </div>
-      {props.col.cartes.map((card) => (
-        <Card key={card.id} card={card} />
+      {props.col.cartes.map((card, index) => (
+        <Card 
+        key={card.id} 
+        card={card} 
+        colIndex={props.index}
+        cardIndex={index} 
+        onClickEditCard={props.onClickEditCard}
+         />
       ))}
     </section>
   );

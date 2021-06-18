@@ -25,6 +25,11 @@ export default class Card extends Component {
         onClick={this.handleClickAnswer}
         >{this.props.card.question}</h4>
         {this.state.show_answer && <p>{this.props.card.reponse}</p>}
+        <button 
+        onClick={() => {
+          this.props.onClickEditCard(this.props.colIndex, this.props.cardIndex);
+        }}
+        className="btn btn-warning">Modifier</button>
       </article>
     );
   }

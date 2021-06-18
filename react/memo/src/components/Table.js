@@ -16,7 +16,8 @@ class Table extends Component {
       user: null,
       columns: [],
       addingCardInCol: -1,
-      addingTerm: false
+      addingTerm: false,
+      editingCard: null,
     };
   }
   /**
@@ -39,24 +40,38 @@ class Table extends Component {
       });
   }
   /**
-   * Affiche le formulaire d'ajout de terme 
+   * Affiche le formulaire d'ajout de terme
    */
   handleClickAddTerm = () => {
     console.log(`Dans handleClickAddTerm`);
-    const state = {...this.state};
+    const state = { ...this.state };
     state.addingTerm = true;
     this.setState(state);
-  }
+  };
 
   /**
    * Modifie le state (addingCardInCol) pour afficher le formulaire
-   * @param {number} col_index 
+   * @param {number} col_index
    */
   handleClickButtonAddCard = (col_index) => {
     console.log(`Dans handleClickButtonAddCard - col : `, col_index);
     // Apparition du formulaire
     const state = { ...this.state };
     state.addingCardInCol = col_index;
+    this.setState(state);
+  };
+
+  handleClickEditCard = (col_index, card_index) => {
+    console.log(
+      `Dans handleClickEditCard, col_index, card_index`,
+      col_index,
+      card_index
+    );
+    const state = { ...this.state };
+    state.editingCard = {
+      col_index: col_index,
+      card_index: card_index,
+    };
     this.setState(state);
   };
   /**
@@ -89,7 +104,7 @@ class Table extends Component {
 
   /**
    * Ajoute une carte dans la bonne colonne
-   * @param {Event} event 
+   * @param {Event} event
    */
   handleSubmitFormAddCard = (event) => {
     console.log(`Dans handleSubmitFormAddCard`);
@@ -116,15 +131,28 @@ class Table extends Component {
     const state = { ...this.state };
     state.terms.push({
       id: 999999,
-      name: term
+      name: term,
     });
     state.addingTerm = false;
     this.setState(state);
-  }
+  };
+  handleSubmitFormEditCard = (event) => {
+    console.log(`Dans handleSubmitFormEditCard`);
+    event.preventDefault();
+    const form = event.target;
+    const question = form.querySelector("#edit-question").value;
+    const answer = form.querySelector("#edit-answer").value;
+
+    const state = { ...this.state };
+    state.columns[this.state.editingCard.col_index].cartes[this.state.editingCard.card_index].question = question;
+    state.columns[this.state.editingCard.col_index].cartes[this.state.editingCard.card_index].reponse = answer;
+    state.editingCard = null;
+    this.setState(state);
+  };
   /**
    * Vérifie si l'utilisateur est reconnu (login et pwd)
    * Dans l'affirmative, va chercher les termes de cet utilisateur
-   * @param {Event} event 
+   * @param {Event} event
    */
   handleSubmitFormLogin(event) {
     event.preventDefault();
@@ -195,7 +223,7 @@ class Table extends Component {
    * Afficher le formulaire d'ajout de terme
    * @returns JSX
    */
-   renderFormAddTerm() {
+  renderFormAddTerm() {
     if (this.state.addingTerm) {
       return (
         <form
@@ -213,8 +241,48 @@ class Table extends Component {
       );
     }
   }
+  renderFormEditCard() {
+    if (this.state.editingCard) {
+      return (
+        <form
+          action=""
+          onSubmit={(event) => {
+            this.handleSubmitFormEditCard(event);
+          }}
+        >
+          <div className="form-group">
+            <label htmlFor="edit-question">Question</label>
+            <input
+              className="form-control"
+              type="text"
+              id="edit-question"
+              defaultValue={
+                this.state.columns[this.state.editingCard.col_index].cartes[
+                  this.state.editingCard.card_index
+                ].question
+              }
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="edit-answer">Réponse</label>
+            <input
+              className="form-control"
+              type="text"
+              id="edit-answer"
+              defaultValue={
+                this.state.columns[this.state.editingCard.col_index].cartes[
+                  this.state.editingCard.card_index
+                ].reponse
+              }
+            />
+          </div>
+          <input type="submit" value="Modifier la carte" />
+        </form>
+      );
+    }
+  }
   /**
-   * Affiche les colonnes 
+   * Affiche les colonnes
    * @returns JSX
    */
   renderColumns() {
@@ -227,6 +295,7 @@ class Table extends Component {
               col={col}
               onClickButtonAddCard={this.handleClickButtonAddCard}
               index={index}
+              onClickEditCard={this.handleClickEditCard}
             />
           ))}
         </section>
@@ -234,19 +303,24 @@ class Table extends Component {
     }
   }
   renderTerms() {
-    if(this.state.user) {
+    if (this.state.user) {
       return (
         <nav className="d-flex justify-content-center">
-          <button onClick={this.handleClickAddTerm} className="m-3 btn btn-success">+</button>
-        {this.state.terms.map((term) => (
-          <Term
-            key={term.id}
-            name={term.name}
-            id={term.id}
-            onClickTerm={this.handleClickTerm}
-          />
-        ))}
-      </nav>
+          <button
+            onClick={this.handleClickAddTerm}
+            className="m-3 btn btn-success"
+          >
+            +
+          </button>
+          {this.state.terms.map((term) => (
+            <Term
+              key={term.id}
+              name={term.name}
+              id={term.id}
+              onClickTerm={this.handleClickTerm}
+            />
+          ))}
+        </nav>
       );
     }
   }
@@ -265,6 +339,7 @@ class Table extends Component {
         <main className="container">
           {this.renderFormAddCard()}
           {this.renderFormAddTerm()}
+          {this.renderFormEditCard()}
           {this.renderColumns()}
           {!this.state.user && (
             <form
