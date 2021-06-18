@@ -15,8 +15,14 @@ class Table extends Component {
       token: "",
       user: null,
       columns: [],
+      addingCardInCol: -1,
     };
   }
+  /**
+   * Automatiquement appelée aprés le premier render (hook)
+   * Habituellement utilisée pour aller chercher des données via des services
+   * Ici, on va chercher le token
+   */
   componentDidMount() {
     // Une fois que le component est monté, je fais appel aux web services
     console.log(`fd dans componentDidMount :`, this.fd);
@@ -31,9 +37,26 @@ class Table extends Component {
         console.error("Erreur attrapée dans getToken : ", error.message);
       });
   }
-  /* L'utilisation de la fonction fléchée permet de s'assurer que 
+  /**
+   * Modifie le state (addingCardInCol) pour afficher le formulaire
+   * @param {number} col_index 
+   */
+  handleClickButtonAddCard = (col_index) => {
+    console.log(`Dans handleClickButtonAddCard - col : `, col_index);
+    // Apparition du formulaire
+    const state = { ...this.state };
+    state.addingCardInCol = col_index;
+    this.setState(state);
+  };
+  /**
+   * Va chercher les infos (colonnes et cartes) concernant un terme cliqué
+   * Utilise les promesses
+   * L'utilisation de la fonction fléchée permet de s'assurer que 
   this correspond bien à l'instance d'APP. En effet, le this est alors
-  fonction de l'endroit (ici la classe Table) où la méthode est déclarée  */
+  fonction de l'endroit (ici la classe Table) où la méthode est déclarée
+   * @param {Event} event 
+   * @param {number} tid 
+   */
   handleClickTerm = (event, tid) => {
     console.log(`dans handleClickTerm`, tid);
     // Maintenant que l'on a tout ce qu'il faut pour aller chercher
@@ -53,6 +76,32 @@ class Table extends Component {
       });
   };
 
+  /**
+   * Ajoute une carte dans la bonne colonne
+   * @param {Event} event 
+   */
+  handleSubmitFormAddCard = (event) => {
+    console.log(`Dans handleSubmitFormAddCard`);
+    event.preventDefault();
+    const form = event.target;
+    const question = form.querySelector("#add-question").value;
+    const answer = form.querySelector("#add-answer").value;
+    //console.log(`question et réponse à ajouter : `, question, answer);
+
+    const state = { ...this.state };
+    state.columns[this.state.addingCardInCol].cartes.push({
+      id: 999999,
+      question: question,
+      reponse: answer,
+    });
+    state.addingCardInCol = -1;
+    this.setState(state);
+  };
+  /**
+   * Vérifie si l'utilisateur est reconnu (login et pwd)
+   * Dans l'affirmative, va chercher les termes de cet utilisateur
+   * @param {Event} event 
+   */
   handleSubmitFormLogin(event) {
     event.preventDefault();
     const form = event.target;
@@ -92,19 +141,56 @@ class Table extends Component {
     // impact sur le rendu, alors la méthode render est rappelée
     this.setState(state);
   }
-  renderColumns() {
-    if(this.state.columns.length) {
-      return(
-        <section className="row">
-        {this.state.columns.map(col => <Column 
-          key={col.id}
-          col={col}
-          />)}
-        </section>
-      )
+  /**
+   * Afficher le formulaire d'ajout de carte
+   * @returns JSX
+   */
+  renderFormAddCard() {
+    if (this.state.addingCardInCol != -1) {
+      return (
+        <form
+          action=""
+          onSubmit={(event) => {
+            this.handleSubmitFormAddCard(event);
+          }}
+        >
+          <div className="form-group">
+            <label htmlFor="add-question">Question</label>
+            <input className="form-control" type="text" id="add-question" />
+          </div>
+          <div className="form-group">
+            <label htmlFor="add-answer">Réponse</label>
+            <input className="form-control" type="text" id="add-answer" />
+          </div>
+          <input type="submit" value="Ajouter la carte" />
+        </form>
+      );
     }
-    
   }
+  /**
+   * Affiche les colonnes 
+   * @returns JSX
+   */
+  renderColumns() {
+    if (this.state.columns.length) {
+      return (
+        <section className="row">
+          {this.state.columns.map((col, index) => (
+            <Column
+              key={col.id}
+              col={col}
+              onClickButtonAddCard={this.handleClickButtonAddCard}
+              index={index}
+            />
+          ))}
+        </section>
+      );
+    }
+  }
+  /**
+   * Affiche la structure globale de l'application
+   * @returns JSX
+   */
   render() {
     return (
       <>
@@ -125,6 +211,7 @@ class Table extends Component {
           )}
         </header>
         <main className="container">
+          {this.renderFormAddCard()}
           {this.renderColumns()}
           {!this.state.user && (
             <form

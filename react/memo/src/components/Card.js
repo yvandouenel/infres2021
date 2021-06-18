@@ -19,7 +19,7 @@ export default class Card extends Component {
   }
   render() {
     return (
-      <article className="bg-secondary text-light p-3 rounded mb-4">
+      <article className="mt-3 bg-secondary text-light p-3 rounded mb-4">
         <h4
         role="button"
         onClick={this.handleClickAnswer}
