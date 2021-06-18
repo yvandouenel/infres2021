@@ -11,7 +11,7 @@ export default function Column(props) {
     <section className="col">
       <div className="d-flex">
         <button
-          className="btn btn-success mr-2"
+          className="btn btn-success mr-2 align-self-start"
           onClick={()=>{props.onClickButtonAddCard(props.index)}}
         >
           +

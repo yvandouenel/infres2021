@@ -16,6 +16,7 @@ class Table extends Component {
       user: null,
       columns: [],
       addingCardInCol: -1,
+      addingTerm: false
     };
   }
   /**
@@ -37,6 +38,16 @@ class Table extends Component {
         console.error("Erreur attrapée dans getToken : ", error.message);
       });
   }
+  /**
+   * Affiche le formulaire d'ajout de terme 
+   */
+  handleClickAddTerm = () => {
+    console.log(`Dans handleClickAddTerm`);
+    const state = {...this.state};
+    state.addingTerm = true;
+    this.setState(state);
+  }
+
   /**
    * Modifie le state (addingCardInCol) pour afficher le formulaire
    * @param {number} col_index 
@@ -97,6 +108,19 @@ class Table extends Component {
     state.addingCardInCol = -1;
     this.setState(state);
   };
+  handleSubmitFormAddTerm = (event) => {
+    event.preventDefault();
+    const form = event.target;
+    const term = form.querySelector("#add-term").value;
+
+    const state = { ...this.state };
+    state.terms.push({
+      id: 999999,
+      name: term
+    });
+    state.addingTerm = false;
+    this.setState(state);
+  }
   /**
    * Vérifie si l'utilisateur est reconnu (login et pwd)
    * Dans l'affirmative, va chercher les termes de cet utilisateur
@@ -168,6 +192,28 @@ class Table extends Component {
     }
   }
   /**
+   * Afficher le formulaire d'ajout de terme
+   * @returns JSX
+   */
+   renderFormAddTerm() {
+    if (this.state.addingTerm) {
+      return (
+        <form
+          action=""
+          onSubmit={(event) => {
+            this.handleSubmitFormAddTerm(event);
+          }}
+        >
+          <div className="form-group">
+            <label htmlFor="add-term">Terme</label>
+            <input className="form-control" type="text" id="add-term" />
+          </div>
+          <input type="submit" value="Ajouter un terme" />
+        </form>
+      );
+    }
+  }
+  /**
    * Affiche les colonnes 
    * @returns JSX
    */
@@ -187,6 +233,24 @@ class Table extends Component {
       );
     }
   }
+  renderTerms() {
+    if(this.state.user) {
+      return (
+        <nav className="d-flex justify-content-center">
+          <button onClick={this.handleClickAddTerm} className="m-3 btn btn-success">+</button>
+        {this.state.terms.map((term) => (
+          <Term
+            key={term.id}
+            name={term.name}
+            id={term.id}
+            onClickTerm={this.handleClickTerm}
+          />
+        ))}
+      </nav>
+      );
+    }
+  }
+
   /**
    * Affiche la structure globale de l'application
    * @returns JSX
@@ -196,22 +260,11 @@ class Table extends Component {
       <>
         <header className="container">
           <h1 className="text-center">Memo</h1>
-
-          {this.state.user && (
-            <nav className="d-flex justify-content-center">
-              {this.state.terms.map((term) => (
-                <Term
-                  key={term.id}
-                  name={term.name}
-                  id={term.id}
-                  onClickTerm={this.handleClickTerm}
-                />
-              ))}
-            </nav>
-          )}
+          {this.renderTerms()}
         </header>
         <main className="container">
           {this.renderFormAddCard()}
+          {this.renderFormAddTerm()}
           {this.renderColumns()}
           {!this.state.user && (
             <form
