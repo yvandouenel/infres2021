@@ -60,7 +60,17 @@ class Table extends Component {
     state.addingCardInCol = col_index;
     this.setState(state);
   };
-
+  handleClickDeleteCard = (col_index, card_index) => {
+    console.log(
+      `Dans handleClickDeleteCard, col_index, card_index`,
+      col_index,
+      card_index
+    );
+    alert("Etes vous sûr.e de vouloir supprimer cette carte ?");
+    const state = { ...this.state };
+    state.columns[col_index].cartes.splice(card_index,1);
+    this.setState(state);
+  };
   handleClickEditCard = (col_index, card_index) => {
     console.log(
       `Dans handleClickEditCard, col_index, card_index`,
@@ -144,8 +154,12 @@ class Table extends Component {
     const answer = form.querySelector("#edit-answer").value;
 
     const state = { ...this.state };
-    state.columns[this.state.editingCard.col_index].cartes[this.state.editingCard.card_index].question = question;
-    state.columns[this.state.editingCard.col_index].cartes[this.state.editingCard.card_index].reponse = answer;
+    state.columns[this.state.editingCard.col_index].cartes[
+      this.state.editingCard.card_index
+    ].question = question;
+    state.columns[this.state.editingCard.col_index].cartes[
+      this.state.editingCard.card_index
+    ].reponse = answer;
     state.editingCard = null;
     this.setState(state);
   };
@@ -205,16 +219,27 @@ class Table extends Component {
           onSubmit={(event) => {
             this.handleSubmitFormAddCard(event);
           }}
+          className="mod"
+          id="form-add-card"
+          onClick={(event) => {
+            if(event.target.id == "form-add-card") {
+              const state = { ...this.state };
+              state.addingCardInCol = -1;
+              this.setState(state);
+            }
+          }}
         >
-          <div className="form-group">
-            <label htmlFor="add-question">Question</label>
-            <input className="form-control" type="text" id="add-question" />
+          <div className="wrapper-mod">
+            <div className="form-group">
+              <label htmlFor="add-question">Question</label>
+              <input className="form-control" type="text" id="add-question" />
+            </div>
+            <div className="form-group">
+              <label htmlFor="add-answer">Réponse</label>
+              <input className="form-control" type="text" id="add-answer" />
+            </div>
+            <input type="submit" value="Ajouter la carte" />
           </div>
-          <div className="form-group">
-            <label htmlFor="add-answer">Réponse</label>
-            <input className="form-control" type="text" id="add-answer" />
-          </div>
-          <input type="submit" value="Ajouter la carte" />
         </form>
       );
     }
@@ -228,17 +253,26 @@ class Table extends Component {
       return (
         <form
           id="form-add-term"
-          className=""
+          className="mod"
           action=""
           onSubmit={(event) => {
             this.handleSubmitFormAddTerm(event);
           }}
+          onClick={(event) => {
+            if(event.target.id == "form-add-term") {
+              const state = { ...this.state };
+              state.addingTerm = false;
+              this.setState(state);
+            }
+          }}
         >
-          <div className="form-group">
-            <label htmlFor="add-term">Terme</label>
-            <input className="form-control" type="text" id="add-term" />
+          <div className="wrapper-mod">
+            <div className="form-group">
+              <label htmlFor="add-term">Terme</label>
+              <input className="form-control" type="text" id="add-term" />
+            </div>
+            <input type="submit" value="Ajouter un terme" />
           </div>
-          <input type="submit" value="Ajouter un terme" />
         </form>
       );
     }
@@ -251,34 +285,45 @@ class Table extends Component {
           onSubmit={(event) => {
             this.handleSubmitFormEditCard(event);
           }}
+          id="form-edit-card"
+          className="mod"
+          onClick={(event) => {
+            if(event.target.id == "form-edit-card") {
+              const state = { ...this.state };
+              state.editingCard = null;
+              this.setState(state);
+            }
+          }}
         >
-          <div className="form-group">
-            <label htmlFor="edit-question">Question</label>
-            <input
-              className="form-control"
-              type="text"
-              id="edit-question"
-              defaultValue={
-                this.state.columns[this.state.editingCard.col_index].cartes[
-                  this.state.editingCard.card_index
-                ].question
-              }
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="edit-answer">Réponse</label>
-            <input
-              className="form-control"
-              type="text"
-              id="edit-answer"
-              defaultValue={
-                this.state.columns[this.state.editingCard.col_index].cartes[
-                  this.state.editingCard.card_index
-                ].reponse
-              }
-            />
-          </div>
-          <input type="submit" value="Modifier la carte" />
+         <div className="wrapper-mod">
+            <div className="form-group">
+              <label htmlFor="edit-question">Question</label>
+              <input
+                className="form-control"
+                type="text"
+                id="edit-question"
+                defaultValue={
+                  this.state.columns[this.state.editingCard.col_index].cartes[
+                    this.state.editingCard.card_index
+                  ].question
+                }
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="edit-answer">Réponse</label>
+              <input
+                className="form-control"
+                type="text"
+                id="edit-answer"
+                defaultValue={
+                  this.state.columns[this.state.editingCard.col_index].cartes[
+                    this.state.editingCard.card_index
+                  ].reponse
+                }
+              />
+            </div>
+            <input type="submit" value="Modifier la carte" />
+         </div>
         </form>
       );
     }
@@ -298,6 +343,7 @@ class Table extends Component {
               onClickButtonAddCard={this.handleClickButtonAddCard}
               index={index}
               onClickEditCard={this.handleClickEditCard}
+              onClickDeleteCard={this.handleClickDeleteCard}
             />
           ))}
         </section>

@@ -11,20 +11,22 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-.modal {
+
+.mod {
   position: absolute;
   width: 100vw;
   height: 100vh;
-  border: 1px solid red;
   top: 0;
   left: 0;
-  background-color: rgba(0, 0, 0, .2);
+  background-color: rgba(255, 255, 255, .8);
   display: flex;
   justify-content: center;
-  align-items: center
+  align-items: center;
+  z-index: 1;
 }
-.wrapper-modal {
+.wrapper-mod {
   border: 1px solid black;
+  border-radius: 8px;
   background-color: white;
   width: 50%;
   padding: 20px;

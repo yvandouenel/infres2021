@@ -25,6 +25,7 @@ export default function Column(props) {
         colIndex={props.index}
         cardIndex={index} 
         onClickEditCard={props.onClickEditCard}
+        onClickDeleteCard={props.onClickDeleteCard}
          />
       ))}
     </section>

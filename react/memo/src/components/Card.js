@@ -30,6 +30,11 @@ export default class Card extends Component {
           this.props.onClickEditCard(this.props.colIndex, this.props.cardIndex);
         }}
         className="btn btn-warning">Modifier</button>
+        <button 
+        onClick={() => {
+          this.props.onClickDeleteCard(this.props.colIndex, this.props.cardIndex);
+        }}
+        className="btn btn-danger ml-2">Supprimer</button>
       </article>
     );
   }
