@@ -227,6 +227,8 @@ class Table extends Component {
     if (this.state.addingTerm) {
       return (
         <form
+          id="form-add-term"
+          className=""
           action=""
           onSubmit={(event) => {
             this.handleSubmitFormAddTerm(event);
